@@ -1,11 +1,15 @@
 import express from "express";
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.route.js";
 
 const app = express();
 
 app.use(express.json());
 
+app.use("/img", express.static("public/img"));
+
 app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
