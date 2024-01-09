@@ -1,30 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import { authSchema } from "../schemas";
+
+import { FaEye } from "react-icons/fa";
+import { BiSolidHide } from "react-icons/bi";
 
 const SignUp = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
+  const [showPassword, setShowPassword] = useState(false);
 
-  const { username, email, password } = formData;
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
@@ -32,10 +22,9 @@ const SignUp = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       });
       const data = await res.json();
-      console.log(data);
       if (data.success === false) {
         setError(data.message);
         toast.error("Something went broke!");
@@ -51,41 +40,116 @@ const SignUp = () => {
     }
   };
 
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    isSubmitting,
+  } = useFormik({
+    initialValues: {
+      username: "",
+      email: "",
+      password: "",
+      confPassword: "",
+    },
+    validationSchema: authSchema,
+    onSubmit,
+  });
+
   return (
     <section className="p-3 max-w-lg mx-auto">
       <h1 className="text-center py-7 text-3xl font-semibold text-slate-950">
         Sign Up
       </h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <input
-          className="p-3 rounded-lg border shadow"
+          className={`p-3 rounded-lg border shadow${
+            errors.username && touched.username ? "border-2 border-red-700" : ""
+          }`}
           type="text"
-          placeholder="Username"
           id="username"
-          value={username}
+          placeholder="Username"
+          value={values.username}
           onChange={handleChange}
+          onBlur={handleBlur}
           required
         />
+        {errors.username && touched.username && (
+          <p className="mt-[-18px] text-xs sm:text-sm text-red-600">
+            {errors.username}
+          </p>
+        )}
         <input
-          className="p-3 rounded-lg border shadow"
+          className={`p-3 rounded-lg border shadow${
+            errors.email && touched.email ? "border-2 border-red-700" : ""
+          }`}
           type="email"
-          placeholder="Email"
           id="email"
-          value={email}
+          placeholder="Email"
+          value={values.email}
           onChange={handleChange}
+          onBlur={handleBlur}
           required
         />
+        {errors.email && touched.email && (
+          <p className="mt-[-18px] text-xs sm:text-sm text-red-600">
+            {errors.email}
+          </p>
+        )}
+        <div className="relative">
+          <input
+            className={`p-3 rounded-lg border shadow w-full ${
+              errors.password && touched.password
+                ? "border-2 border-red-700"
+                : ""
+            }`}
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            id="password"
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            required
+          />
+          {errors.password && touched.password && (
+            <p className="text-xs sm:text-sm text-red-600">{errors.password}</p>
+          )}
+          {showPassword ? (
+            <FaEye
+              className="absolute top-5 right-3 text-xl"
+              onClick={() => setShowPassword((prevState) => !prevState)}
+            />
+          ) : (
+            <BiSolidHide
+              className="absolute top-5 right-3 text-xl"
+              onClick={() => setShowPassword((prevState) => !prevState)}
+            />
+          )}
+        </div>
         <input
-          className="p-3 rounded-lg border shadow"
+          className={`p-3 rounded-lg border shadow w-full${
+            errors.confPassword && touched.confPassword
+              ? "border-2 border-red-700"
+              : ""
+          }`}
           type="password"
-          placeholder="Password"
-          id="password"
-          value={password}
+          placeholder="confirm password"
+          id="confPassword"
+          value={values.confPassword}
           onChange={handleChange}
+          onBlur={handleBlur}
           required
         />
+        {errors.confPassword && touched.confPassword && (
+          <p className="mt-[-18px] text-xs sm:text-sm text-red-600">
+            {errors.confPassword}
+          </p>
+        )}
         <button
-          disabled={loading}
+          disabled={isSubmitting}
           className="p-3 rounded-lg border shadow bg-slate-700 text-white uppercase font-semibold hover:bg-slate-800 disabled:bg-opacity-80"
           type="submit"
         >
@@ -98,11 +162,7 @@ const SignUp = () => {
           Sign in
         </Link>
       </p>
-      {username.length == 1 && (
-        <p className="text-red-600 mt-5">
-          username must be atleast 2 characters!
-        </p>
-      )}
+
       {error && <p className="text-red-600 mt-5">{error}</p>}
     </section>
   );
