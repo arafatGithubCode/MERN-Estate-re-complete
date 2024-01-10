@@ -15,6 +15,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -120,14 +121,18 @@ const SignIn = () => {
         >
           {loading ? "Loading..." : "sign in"}
         </button>
+        <div className="flex items-center before:border-t-2 before:flex-1 before:border-slate-500 after:border-t-2 after:flex-1 after:border-slate-500">
+          <p className="text-center font-semibold mx-4">OR</p>
+        </div>
+        <OAuth />
       </form>
-      <p>
+      <p className="my-5">
         Don&apos;t Have an account?
         <Link to="/signup" className="text-blue-600 ml-2">
           Sing up
         </Link>
       </p>
-      {error && <p className="text-red-700 mt-5">Wrong Credential!</p>}
+      {error && <p className="text-red-700 mb-5">Wrong Credential!</p>}
     </section>
   );
 };

@@ -9,8 +9,8 @@ const userSchema = new mongoose.Schema(
         "Minimum length of username should be greater then 2 characters.",
       ],
       maxlength: [
-        15,
-        "Maximum length of username should be lower then 15 characters.",
+        25,
+        "Maximum length of username should be lower then 25 characters.",
       ],
       required: [true, "username is required"],
       unique: [true, "this username already exists!"],

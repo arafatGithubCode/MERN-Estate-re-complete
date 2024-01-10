@@ -6,6 +6,7 @@ import { signUpSchema } from "../schemas";
 
 import { FaEye } from "react-icons/fa";
 import { BiSolidHide } from "react-icons/bi";
+import OAuth from "../components/OAuth";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -156,8 +157,12 @@ const SignUp = () => {
         >
           {loading && !error ? "Loading..." : "sign up"}
         </button>
+        <div className="flex items-center before:border-t-2 before:flex-1 before:border-slate-500 after:border-t-2 after:flex-1 after:border-slate-500">
+          <p className="text-center font-semibold mx-4">OR</p>
+        </div>
+        <OAuth />
       </form>
-      <p>
+      <p className="my-5">
         Have an account?{" "}
         <Link className="text-blue-700" to="/signin">
           Sign in
