@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
-import { authSchema } from "../schemas";
+import { signUpSchema } from "../schemas";
 
 import { FaEye } from "react-icons/fa";
 import { BiSolidHide } from "react-icons/bi";
@@ -14,7 +14,8 @@ const SignUp = () => {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async () => {
+  const onSubmit = async (_, actions) => {
+    actions.resetForm();
     try {
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
@@ -55,7 +56,7 @@ const SignUp = () => {
       password: "",
       confPassword: "",
     },
-    validationSchema: authSchema,
+    validationSchema: signUpSchema,
     onSubmit,
   });
 

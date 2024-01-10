@@ -1,20 +1,48 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { authSchema } from "../schemas";
+import { signInSchema } from "../schemas";
 import { useState } from "react";
 
 import { FaEye } from "react-icons/fa";
 import { BiSolidHide } from "react-icons/bi";
 
-const onSubmit = (values, actions) => {
-  console.log("submitted");
-  console.log(values);
-  console.log(actions);
-  actions.resetForm();
-};
+import axios from "axios";
+import { toast } from "react-toastify";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  singInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 const SignIn = () => {
+  const navigate = useNavigate();
+  const { error, loading } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+
+  const onSubmit = async () => {
+    dispatch(singInStart());
+    try {
+      const res = await axios.post("/api/auth/signin", JSON.stringify(values), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = res.data;
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        toast.error("something went wrong!");
+        return;
+      }
+      dispatch(signInSuccess(data));
+      navigate("/");
+    } catch (error) {
+      dispatch(signInFailure(error.message));
+      toast.error("something went wrong!");
+    }
+  };
 
   const {
     values,
@@ -29,21 +57,17 @@ const SignIn = () => {
       email: "",
       password: "",
     },
-    validationSchema: authSchema,
+    validationSchema: signInSchema,
     onSubmit,
   });
-  console.log(errors);
+
   return (
     <section className="p-3 max-w-lg mx-auto">
       <h1 className="text-center py-7 font-semibold text-3xl text-slate-900">
         Sign In
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        autoComplete="off"
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <input
           className={`p-3 rounded-lg border shadow w-full${
             errors.email && touched.email ? "border-2 border-red-800" : ""
@@ -94,7 +118,7 @@ const SignIn = () => {
           className="p-3 rounded-lg border shadow bg-slate-700 uppercase font-semibold text-white hover:bg-slate-800 disabled:bg-opacity-85"
           type="submit"
         >
-          sign in
+          {loading ? "Loading..." : "sign in"}
         </button>
       </form>
       <p>
@@ -103,6 +127,7 @@ const SignIn = () => {
           Sing up
         </Link>
       </p>
+      {error && <p className="text-red-700 mt-5">Wrong Credential!</p>}
     </section>
   );
 };
