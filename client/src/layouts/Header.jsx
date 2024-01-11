@@ -4,7 +4,10 @@ import { FaSearch } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
 import { useState } from "react";
 
+import { useSelector } from "react-redux";
+
 const Header = () => {
+  const { currentUser } = useSelector((state) => state.user);
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -48,15 +51,26 @@ const Header = () => {
           >
             About
           </Link>
-          <Link
-            to="/signin"
-            className={`hidden sm:inline text-sm pb-1 text-gray-400 ${
-              pathMatchRoute("/signin") &&
-              "text-slate-900 font-semibold border-b-[3px] border-b-red-500"
-            }`}
-          >
-            Sign In
-          </Link>
+          {currentUser ? (
+            <Link to="/profile" className="hidden sm:inline">
+              <img
+                className="w-12 h-12 rounded-full border cursor-pointer"
+                src={currentUser.avatar}
+                alt="profile"
+              />
+            </Link>
+          ) : (
+            <Link
+              to="/signin"
+              className={`hidden sm:inline text-sm pb-1 text-gray-400 ${
+                pathMatchRoute("/signin") &&
+                "text-slate-900 font-semibold border-b-[3px] border-b-red-500"
+              }`}
+            >
+              Sign In
+            </Link>
+          )}
+
           <IoMenu
             onClick={() => setShowMenu(!showMenu)}
             className="sm:hidden text-4xl cursor-pointer mr-7"
@@ -64,14 +78,25 @@ const Header = () => {
         </nav>
       </div>
       {showMenu && (
-        <div className="flex flex-col absolute top-[4.5rem] right-0 bg-slate-200 h-screen w-[8rem] bg-opacity-[0.5] border-l-2 pl-3 pt-5 gap-5">
-          <Link
-            className="font-semibold text-black text-lg hover:text-green-700"
-            to="/signin"
-            onClick={() => setShowMenu(false)}
-          >
-            Sign In
-          </Link>
+        <div className="flex flex-col absolute top-[4.5rem] right-0 bg-slate-200 h-screen w-[8rem] bg-opacity-[0.5] border-l-2 pl-3 pt-5 gap-5 sm:hidden">
+          {currentUser ? (
+            <Link to="/profile">
+              <img
+                className="w-12 h-12 rounded-full border cursor-pointer"
+                src={currentUser.avatar}
+                alt="profile"
+              />
+            </Link>
+          ) : (
+            <Link
+              className="font-semibold text-black text-lg hover:text-green-700"
+              to="/signin"
+              onClick={() => setShowMenu(false)}
+            >
+              Sign In
+            </Link>
+          )}
+
           <Link
             className="font-semibold text-black text-lg hover:text-green-700"
             to="/"
