@@ -80,7 +80,7 @@ const Header = () => {
       {showMenu && (
         <div className="flex flex-col absolute top-[4.5rem] right-0 bg-slate-200 h-screen w-[8rem] bg-opacity-[0.5] border-l-2 pl-3 pt-5 gap-5 sm:hidden">
           {currentUser ? (
-            <Link to="/profile">
+            <Link to="/profile" onClick={() => setShowMenu(false)}>
               <img
                 className="w-12 h-12 rounded-full border cursor-pointer"
                 src={currentUser.avatar}
