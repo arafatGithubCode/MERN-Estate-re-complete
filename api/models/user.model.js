@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema(
       ],
       required: [true, "username is required"],
       unique: [true, "this username already exists!"],
-      lowercase: true,
       trim: true,
     },
     email: {

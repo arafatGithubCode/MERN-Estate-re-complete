@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { app } from "../config/firebase";
 import {
@@ -9,23 +9,34 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 
+import { toast } from "react-toastify";
+
+import {
+  updateUserFailure,
+  updateUserStart,
+  updateUserSuccess,
+} from "../redux/user/userSlice";
+
 const Profile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+
   const [file, setFile] = useState(undefined);
   const [fileUploadError, setFileUploadError] = useState(null);
   const fileRef = useRef(null);
   const [filePerc, setFilePerc] = useState(0);
   const [formData, setFormData] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
     }
   }, [file]);
+
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
-    const fileStorageRef = ref(storage, fileName);
+    const fileStorageRef = ref(storage, `profile/${fileName}`);
     const uploadTask = uploadBytesResumable(fileStorageRef, file);
 
     uploadTask.on(
@@ -47,10 +58,38 @@ const Profile = () => {
     );
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        toast.error("something went wrong!");
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      toast.success("user updated successfully!");
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
+      toast.error("something went wrong!");
+    }
+  };
   return (
     <section className="flex flex-col gap-4 p-3 max-w-lg mx-auto">
       <h1 className="text-center my-7 text-2xl font-semibold">Profile</h1>
-      <form className="flex flex-col gap-4 relative">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
         <input
           type="file"
           accept="image/*"
@@ -88,26 +127,33 @@ const Profile = () => {
           className="p-3 rounded-lg border-gray-300 border shadow"
           type="text"
           defaultValue={currentUser.username}
+          onChange={handleChange}
+          id="username"
           placeholder="you may update your username"
         />
         <input
           className="p-3 rounded-lg border-gray-300 border shadow"
           type="email"
           defaultValue={currentUser.email}
+          onChange={handleChange}
+          id="email"
           placeholder="you may update your email"
         />
         <input
           className="p-3 rounded-lg border-gray-300 border shadow"
           type="password"
+          onChange={handleChange}
+          id="password"
           placeholder="password"
         />
         <button
           className="p-3 rounded-lg border-gray-300 border shadow bg-slate-700 text-white uppercase hover:bg-slate-800 disabled:bg-opacity-80 hover:shadow-lg transition duration-150 ease-in-out"
-          type="button"
+          type="submit"
         >
-          update
+          {loading ? "Loading" : "update"}
         </button>
         <button
+          disabled={loading}
           className="p-3 rounded-lg border-gray-300 border shadow bg-green-700 text-white uppercase hover:bg-green-800 disabled:bg-opacity-80 hover:shadow-lg transition duration-150 ease-in-out"
           type="submit"
         >
@@ -122,6 +168,7 @@ const Profile = () => {
           Sign out{" "}
         </button>
       </div>
+      {error && <p>{error}</p>}
     </section>
   );
 };
