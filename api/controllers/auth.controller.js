@@ -24,7 +24,11 @@ export const signup = async (req, res, next) => {
         .json({ success: false, message: existingUserErrMsg });
     }
     //if Not, create a new user
-    const newUser = await User({ username, email, password: hashedPassword });
+    const newUser = await User({
+      username,
+      email,
+      password: hashedPassword,
+    });
     await newUser.save();
     return res.status(201).json({
       success: true,

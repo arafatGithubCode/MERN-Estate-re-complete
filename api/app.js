@@ -6,8 +6,6 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/img", express.static("public/img"));
-
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 

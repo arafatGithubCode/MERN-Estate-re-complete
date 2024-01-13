@@ -36,7 +36,8 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: "/img/default.jpg",
+      default:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png",
     },
   },
   { timestamps: true }
