@@ -10,6 +10,7 @@ import {
 } from "firebase/storage";
 
 import { toast } from "react-toastify";
+import axios from "axios";
 
 import {
   updateUserFailure,
@@ -18,6 +19,9 @@ import {
   deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
 } from "../redux/user/userSlice";
 
 const Profile = () => {
@@ -97,7 +101,6 @@ const Profile = () => {
         method: "DELETE",
       });
       const data = await res.json();
-      console.log(data);
       if (data.success === false) {
         dispatch(deleteUserFailure(data.message));
         toast.error("something went wrong!");
@@ -107,6 +110,23 @@ const Profile = () => {
       toast.success("User deleted successfully!");
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
+      toast.error("something went wrong!");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutStart());
+      const res = await axios.get("/api/auth/signout");
+      const data = res.data;
+      if (data.success === false) {
+        dispatch(signOutFailure(data.message));
+        toast.error("something went wrong!");
+        return;
+      }
+      dispatch(signOutSuccess(data));
+      toast.success("User logged out successfully!");
+    } catch (error) {
       toast.error("something went wrong!");
     }
   };
@@ -189,7 +209,7 @@ const Profile = () => {
         <button onClick={handleDelete} type="button" className="text-red-600">
           Delete Account
         </button>
-        <button type="button" className="text-red-600">
+        <button onClick={handleSignOut} type="button" className="text-red-600">
           Sign out{" "}
         </button>
       </div>

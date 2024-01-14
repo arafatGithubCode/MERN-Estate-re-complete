@@ -92,3 +92,12 @@ export const google = async (req, res, next) => {
     next(error);
   }
 };
+
+export const signout = (req, res, next) => {
+  try {
+    res.clearCookie("access_key");
+    res.status(200).json("user has been logged out!");
+  } catch (error) {
+    next(error);
+  }
+};
