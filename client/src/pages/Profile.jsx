@@ -10,6 +10,7 @@ import {
 } from "firebase/storage";
 
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 import {
@@ -197,13 +198,12 @@ const Profile = () => {
         >
           {loading ? "Loading" : "update"}
         </button>
-        <button
-          disabled={loading}
-          className="p-3 rounded-lg border-gray-300 border shadow bg-green-700 text-white uppercase hover:bg-green-800 disabled:bg-opacity-80 hover:shadow-lg transition duration-150 ease-in-out"
-          type="submit"
+        <Link
+          to={`/create-listing`}
+          className="p-3 rounded-lg border-gray-300 border shadow bg-green-700 text-white uppercase hover:bg-green-800 disabled:bg-opacity-80 hover:shadow-lg transition duration-150 ease-in-out text-center"
         >
           create listing
-        </button>
+        </Link>
       </form>
       <div className="flex justify-between">
         <button onClick={handleDelete} type="button" className="text-red-600">
