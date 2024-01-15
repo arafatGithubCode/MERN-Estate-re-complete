@@ -9,8 +9,8 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 
-import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import axios from "axios";
 
 import {
@@ -34,6 +34,8 @@ const Profile = () => {
   const [filePerc, setFilePerc] = useState(0);
   const [formData, setFormData] = useState({});
   const dispatch = useDispatch();
+  const [showListingErr, setShowListingErr] = useState(false);
+  const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
     if (file) {
@@ -132,8 +134,23 @@ const Profile = () => {
     }
   };
 
+  const handleShowListing = async () => {
+    try {
+      setShowListingErr(false);
+      const res = await axios.get(`/api/user/listings/${currentUser._id}`);
+      const data = res.data;
+      if (data.success === false) {
+        setShowListingErr(true);
+        return;
+      }
+      setUserListings(data);
+    } catch (error) {
+      setShowListingErr(true);
+    }
+  };
+
   return (
-    <section className="flex flex-col gap-4 p-3 max-w-lg mx-auto">
+    <section className="flex flex-col gap-4 p-3 max-w-lg mx-auto mb-7">
       <h1 className="text-center my-7 text-2xl font-semibold">Profile</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative">
         <input
@@ -213,7 +230,55 @@ const Profile = () => {
           Sign out{" "}
         </button>
       </div>
-      {error && <p>{error}</p>}
+      <button
+        onClick={handleShowListing}
+        disabled={loading}
+        className="text-green-600 hover:font-semibold transition duration-150 ease-in-out disabled:opacity-[0.5]"
+        type="button"
+      >
+        {loading ? "Loading..." : "Show Listings"}
+      </button>
+      {error && <p className="text-red-600">{error}</p>}
+      {showListingErr && <p className="text-red-600">Error showing listings</p>}
+      {userListings && userListings.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className="font-semibold text-xl text-center">Your listings</h1>
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className="flex gap-2 items-center justify-between bg-white rounded-lg px-4 py-1 border border-gray-300 shadow"
+            >
+              <Link
+                to={`/listings/${listing._id}`}
+                className="flex items-center gap-2 flex-1"
+              >
+                <img
+                  className="w-[4rem]"
+                  src={listing.imageUrls[0]}
+                  alt="Image"
+                />
+                <p className="truncate font-semibold hover:underline flex-1">
+                  {listing.name}
+                </p>
+              </Link>
+              <div className="flex flex-col gap-1">
+                <button
+                  className="text-red-500 hover:text-red-800 hover:font-semibold uppercase"
+                  type="button"
+                >
+                  delete
+                </button>
+                <button
+                  className="text-green-500 hover:text-green-800 hover:font-semibold uppercase"
+                  type="button"
+                >
+                  edit
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
