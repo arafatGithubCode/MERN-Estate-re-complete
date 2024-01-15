@@ -1,4 +1,72 @@
+import { useState } from "react";
+
+import { app } from "../config/firebase";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+
 const CreateListing = () => {
+  const [imgUploadErr, setImgUploadErr] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [progressBar, setProgressBar] = useState(null);
+
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+  });
+
+  const handleImgUpload = async () => {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImgUploadErr(false);
+      const promises = [];
+
+      for (let i = 0; i < files.length; i++) {
+        promises.push(storeImg(files[i]));
+      }
+      Promise.all(promises).then((urls) => {
+        setFormData({
+          ...formData,
+          imageUrls: formData.imageUrls.concat(urls),
+        });
+        setImgUploadErr(false);
+        setUploading(false);
+        setProgressBar(false);
+      });
+    } else {
+      setImgUploadErr("You can only upload 6 images per listing!");
+      setUploading(false);
+      setProgressBar(false);
+    }
+  };
+
+  const storeImg = async (file) => {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + file.name;
+      const storageRef = ref(storage, `listingImg/${fileName}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgressBar(Math.round(progress));
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+            resolve(downloadUrl);
+          });
+        }
+      );
+    });
+  };
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-center my-7 text-3xl font-bold">Create a Listing</h1>
@@ -107,16 +175,26 @@ const CreateListing = () => {
               id="images"
               accept="image/*"
               multiple
+              onChange={(e) => setFiles(e.target.files)}
             />
             <button
-              className="py-3 px-6 border uppercase border-green-700 rounded-lg"
+              className="py-3 px-6 border uppercase border-green-700 rounded-lg disabled:text-opacity-[0.2]"
               type="button"
+              disabled={uploading}
+              onClick={handleImgUpload}
             >
-              upload
+              {uploading ? " uploading..." : "upload"}
             </button>
           </div>
+          <p className="text-center mt-[-1rem]">
+            {imgUploadErr ? imgUploadErr : null}
+          </p>
+          <p className="text-center mt-[-1rem]">
+            {progressBar && `uploading ${progressBar} % done`}
+          </p>
           <button
-            className="bg-slate-700 p-3 rounded-lg hover:bg-slate-800 text-white uppercase disabled:bg-opacity-80"
+            disabled={uploading}
+            className="bg-slate-700 p-3 rounded-lg hover:bg-slate-800 text-white uppercase disabled:bg-opacity-[0.7]"
             type="submit"
           >
             create listing
