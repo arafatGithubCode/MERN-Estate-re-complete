@@ -335,7 +335,7 @@ const CreateListing = () => {
           >
             create listing
           </button>
-          {error && <p>{error}</p>}
+          {error && <p className="text-red-600">{error}</p>}
         </div>
       </form>
     </main>

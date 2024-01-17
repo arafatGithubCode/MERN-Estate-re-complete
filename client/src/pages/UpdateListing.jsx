@@ -58,8 +58,7 @@ export default function UpdateListing() {
       discountedPrice: 0,
       imageUrls: [],
     },
-    onSubmit: async (values) => {
-      console.log(values);
+    onSubmit: async () => {
       try {
         if (formik.values.imageUrls < 1) {
           return setError("You must upload atleast one image!");
