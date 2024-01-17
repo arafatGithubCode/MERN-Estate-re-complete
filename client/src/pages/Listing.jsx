@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Spinner from "../components/Spinner";
 
@@ -14,12 +15,15 @@ import { FaBed } from "react-icons/fa";
 import { FaBath } from "react-icons/fa";
 import { FaParking } from "react-icons/fa";
 import { FaChair } from "react-icons/fa";
+import Contact from "../components/Contact";
 
 const Listing = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [listing, setListing] = useState([]);
   const [linkCopied, setLinkCopied] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
+  const [contact, setContact] = useState(false);
   const params = useParams();
 
   useEffect(() => {
@@ -84,11 +88,11 @@ const Listing = () => {
             Link Copied!
           </p>
         )}
-        <div className="p-3 flex flex-col gap-5">
+        <div className="p-3 flex flex-col gap-5 max-w-4xl mx-auto">
           <p className="mt-3 text-black text-2xl">{`${listing.name} - $ ${
             listing.offer
-              ? listing.discountedPrice.toLocaleString("en-US")
-              : listing.regularPrice.toLocaleString("en-US")
+              ? listing.discountedPrice?.toLocaleString("en-US")
+              : listing.regularPrice?.toLocaleString("en-US")
           }`}</p>
           <p className="flex items-center gap-2">
             <FaMapMarkerAlt className="text-green-700" />
@@ -100,8 +104,10 @@ const Listing = () => {
             </span>
             <span className="bg-green-800 p-2 rounded-lg text-white">
               {listing.offer
-                ? `$ ${listing.discountedPrice} discount`
-                : `$ ${listing.regularPrice}`}
+                ? `$ ${listing.discountedPrice?.toLocaleString(
+                    "en-US"
+                  )} discount`
+                : `$ ${listing.regularPrice?.toLocaleString("en-US")}`}
             </span>
           </div>
           <p>
@@ -132,6 +138,15 @@ const Listing = () => {
               <span>{listing.furnished ? "Furnished" : "Not Furnished"}</span>
             </li>
           </ul>
+          {currentUser && listing.userRef !== currentUser._id && !contact && (
+            <button
+              onClick={() => setContact(true)}
+              className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3"
+            >
+              Contact landlord
+            </button>
+          )}
+          {contact && <Contact listing={listing} />}
         </div>
       </main>
     </>
