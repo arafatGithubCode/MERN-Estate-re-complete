@@ -36,6 +36,7 @@ const Profile = () => {
   const dispatch = useDispatch();
   const [showListingErr, setShowListingErr] = useState(false);
   const [userListings, setUserListings] = useState([]);
+  const [deleteListingErr, setDeleteListingErr] = useState(null);
 
   useEffect(() => {
     if (file) {
@@ -147,6 +148,20 @@ const Profile = () => {
     } catch (error) {
       setShowListingErr(true);
     }
+  };
+
+  const deleteListing = async (listingId) => {
+    const res = await axios.delete(`/api/listing/delete/${listingId}`);
+    const data = res.data;
+    if (data.success === false) {
+      setDeleteListingErr(data.message);
+      toast.error("something went wrong");
+    }
+    setUserListings((prev) =>
+      prev.filter((listing) => listing._id !== listingId)
+    );
+    setDeleteListingErr(false);
+    toast.success("Listing deleted successfully!");
   };
 
   return (
@@ -263,6 +278,7 @@ const Profile = () => {
               </Link>
               <div className="flex flex-col gap-1">
                 <button
+                  onClick={() => deleteListing(listing._id)}
                   className="text-red-500 hover:text-red-800 hover:font-semibold uppercase"
                   type="button"
                 >
@@ -277,6 +293,9 @@ const Profile = () => {
               </div>
             </div>
           ))}
+          {deleteListingErr && (
+            <p className="text-red-500">{deleteListingErr}</p>
+          )}
         </div>
       )}
     </section>
