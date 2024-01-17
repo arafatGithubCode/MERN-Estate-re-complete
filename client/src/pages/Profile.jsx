@@ -264,7 +264,7 @@ const Profile = () => {
               className="flex gap-2 items-center justify-between bg-white rounded-lg px-4 py-1 border border-gray-300 shadow"
             >
               <Link
-                to={`/listings/${listing._id}`}
+                to={`/listing/${listing._id}`}
                 className="flex items-center gap-2 flex-1"
               >
                 <img
