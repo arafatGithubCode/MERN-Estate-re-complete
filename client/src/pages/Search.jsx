@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+import Spinner from "../components/Spinner";
+import ListingItem from "../components/ListingItem";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -215,10 +217,23 @@ export default function Search() {
           </button>
         </form>
       </div>
-      <div className="">
+      <div className="mx-5">
         <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">
           Listing results:
         </h1>
+        {loading && <Spinner />}
+        {listings.length < 1 && (
+          <p className="font-semibold text-xl py-7 text-center text-yellow-500">
+            there are no listings found!
+          </p>
+        )}
+        <div className="flex flex-wrap gap-4 justify-center items-center mt-10">
+          {!loading &&
+            listings.length > 0 &&
+            listings.map((listing) => (
+              <ListingItem key={listing._id} listing={listing} />
+            ))}
+        </div>
       </div>
     </div>
   );
