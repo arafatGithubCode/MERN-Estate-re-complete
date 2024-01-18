@@ -1,15 +1,17 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { FaSearch } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useSelector } from "react-redux";
 
 const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
   const location = useLocation();
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const pathMatchRoute = (route) => {
     if (route === location.pathname) {
@@ -17,18 +19,39 @@ const Header = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("searchTerm", searchTerm);
+    const searchQuery = urlParams.toString();
+    navigate(`/search/?${searchQuery}`);
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlParamsFromUrl = urlParams.get("searchTerm");
+    if (urlParamsFromUrl) {
+      setSearchTerm(urlParamsFromUrl);
+    }
+  }, [location.search]);
+
   return (
     <header className="z-20 bg-slate-200 p-3 shadow-md hover:shadow-lg transition-shadow relative">
       <div className="flex justify-between items-center   max-w-6xl mx-auto">
         <Link to="/" className="text-slate-700 font-bold lg:text-xl">
           <span className="text-slate-500">Arafat</span>Estate
         </Link>
-        <form className="flex items-center bg-white rounded-lg p-3">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center bg-white rounded-lg p-3"
+        >
           <input
             className="bg-transparent rounded-lg focus:outline-none w-24 sm:w-64"
             type="text"
             placeholder="Search..."
             id="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <FaSearch />
         </form>
