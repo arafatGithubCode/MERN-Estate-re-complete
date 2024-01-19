@@ -36,8 +36,8 @@ const Header = () => {
   }, [location.search]);
 
   return (
-    <div className="fixed w-full inset-x-0 top-0 z-50">
-      <header className="bg-slate-200 p-3 shadow-md hover:shadow-lg transition-shadow relative">
+    <header className="fixed w-full inset-x-0 top-0 z-50">
+      <div className="bg-slate-200 p-3 shadow-md hover:shadow-lg transition-shadow relative">
         <div className="flex justify-between items-center   max-w-6xl mx-auto">
           <Link to="/" className="text-slate-700 font-bold lg:text-xl">
             <span className="text-slate-500">Arafat</span>Estate
@@ -137,8 +137,8 @@ const Header = () => {
             </Link>
           </div>
         )}
-      </header>
-    </div>
+      </div>
+    </header>
   );
 };
 
